@@ -1,226 +1,115 @@
 # Bidding and Auction Services API
 
-[The Privacy Sandbox][4] aims to develop technologies that enable more private
-advertising on the web and mobile devices. Today, real-time bidding and ad
-auctions are executed on servers that may not provide technical guarantees of
-security. Some users have concerns about how their data is handled to
-generate relevant ads and in how that data is shared with ad providers.
-FLEDGE ([Android][24], [Chrome][5]) provides ways to preserve privacy and limit
-third-party data sharing by serving personalized ads based on previous mobile
-app or web engagement.
+[The Privacy Sandbox][4] aims to develop technologies that enable more private advertising on the web and mobile devices. Today, real-time bidding and ad auctions are executed on servers that may not provide technical guarantees of security. Some users have concerns about how their data is handled to generate relevant ads and in how that data is shared with ad providers. FLEDGE ([Android][24], [Chrome][5]) provides ways to preserve privacy and limit third-party data sharing by serving personalized ads based on previous mobile app or web engagement.
 
-For all platforms, FLEDGE may require [real-time services][6]. In the initial
-[FLEDGE proposal][7], bidding and auction for remarketing ad demand is
-executed locally. This can demand computation requirements that may be
-impractical to execute on devices with limited processing power, or may be
-too slow to render ads due to network latency.
+For all platforms, FLEDGE may require [real-time services][6]. In the initial [FLEDGE proposal][7], bidding and auction for remarketing ad demand is executed locally. This can demand computation requirements that may be impractical to execute on devices with limited processing power, or may be too slow to render ads due to network latency.
 
-The Bidding and Auction Services API proposal outlines a way to allow FLEDGE
-computation to take place on cloud servers in a trusted execution
-environment, rather than running locally on a user's device. Moving
-computations to cloud servers can help optimize the FLEDGE auction, to free
-up computational cycles and network bandwidth for a device. This is not a
-requirement for Chrome at this point.
+The Bidding and Auction Services API proposal outlines a way to allow FLEDGE computation to take place on cloud servers in a trusted execution environment, rather than running locally on a user's device. Moving computations to cloud servers can help optimize the FLEDGE auction, to free up computational cycles and network bandwidth for a device. This is not a requirement for Chrome at this point.
 
-This contrasts with [Google Chrome's initial FLEDGE proposal][7], which
-proposes bidding and auction execution to occur locally. There are other
-ideas, similar to FLEDGE, that propose server-side auction and bidding, such
-as [Microsoft Edge's PARAKEET][8] proposal. Unlike PARAKEET and Criteo's
-Gatekeeper designs, this proposal does not involve any communication between
-services that cannot be attested.
+This contrasts with [Google Chrome's initial FLEDGE proposal][7], which proposes bidding and auction execution to occur locally. There are other ideas, similar to FLEDGE, that propose server-side auction and bidding, such as [Microsoft Edge's PARAKEET][8] proposal. Unlike PARAKEET and Criteo's Gatekeeper designs, this proposal does not involve any communication between services that cannot be attested.
 
-This document focuses on the API design for FLEDGE's bidding and auction
-services. Based on adtech feedback, changes may be incorporated in the
-design. This API proposal in this document does not currently cover sell-side
-and buy-side reporting, but it will be updated later to incorporate both. A
-document that details system design for bidding and auction services will
-also be published at a later date.
+This document focuses on the API design for FLEDGE's bidding and auction services. Based on adtech feedback, changes may be incorporated in the design. This API proposal in this document does not currently cover sell-side and buy-side reporting, but it will be updated later to incorporate both. A document that details system design for bidding and auction services will also be published at a later date.
 
 ## Background
 
-Read the [FLEDGE services overview][6] to learn about the environment, trust
-model, server attestation, request-response encryption, and other details.
+Read the [FLEDGE services overview][6] to learn about the environment, trust model, server attestation, request-response encryption, and other details.
 
-Each FLEDGE service is hosted in a virtual machine (VM) within a secure,
-hardware-based trusted execution environment (TEE). Adtech platforms operate
-and deploy FLEDGE services on a public cloud. Adtechs may choose the cloud
-platform from one of the options that are planned. As cloud customers,
-adtechs are the owners and only tenants of such VM instances.
+Each FLEDGE service is hosted in a virtual machine (VM) within a secure, hardware-based trusted execution environment (TEE). Adtech platforms operate and deploy FLEDGE services on a public cloud. Adtechs may choose the cloud platform from one of the options that are planned. As cloud customers, adtechs are the owners and only tenants of such VM instances.
 
 ## Bidding and Auction system architecture
 
-The following is a high-level overview of the architecture of the Bidding and
-Auction system.
+The following is a high-level overview of the architecture of the Bidding and Auction system.
 
 ![Architecture diagram.](images/bidding-auction-services-architecture.png)
 
-_In this diagram, one seller and one buyer are represented in the service
- workflow. In reality, a single seller auction has multiple participating
- buyers_.
+_In this diagram, one seller and one buyer are represented in the service workflow. In reality, a single seller auction has multiple participating buyers_.
 
 1. The client starts the auction process.
-  - The client sends a `SelectWinningAd` request to the `SellerFrontEnd` service.
-    This request includes the seller's auction configuration and encrypted input
-    for each participating buyer.
-1. The `SellerFrontEnd` service orchestrates `GetBid` requests to participating
-   buyers’ `BuyerFrontEnd` services.
+  - The client sends a `SelectWinningAd` request to the `SellerFrontEnd` service. This request includes the seller's auction configuration and encrypted input for each participating buyer.
+1. The `SellerFrontEnd` service orchestrates `GetBid` requests to participating buyers’ `BuyerFrontEnd` services.
 1. Both the seller and buyer’s front-end services fetch proprietary code.
-    - The `SellerFrontEnd` service fetches the seller’s proprietary code required
-      to score ads.
-  - The `BuyerFrontEnd` services fetch real-time data from the buyer’s key-value
-    service, as well as the buyer owned proprietary code to generate bids.
-1. The `BuyerFrontEnd` service sends a `GenerateBids` request to the bidding
-   service. The bidding service returns ad candidates with bids.
-1. The `BuyerFrontEnd` selects the top eligible ad candidate and returns the
-   selection to the `SellerFrontEnd` with `AdWithBid`.
-1. Once `SellerFrontEnd` has received bids from all buyers, it requests real-time
-   data from the seller’s key/value service required to score the ads for
-   auction.
-  1. `SellerFrontEnd` sends a `ScoreAds` request to the `auction` service to
-       score and select a winner.
-1. `SellerFrontEnd` returns the winning ad and additional data to the client to
-   render.
+  - The `SellerFrontEnd` service fetches the seller’s proprietary code required to score ads.
+  - The `BuyerFrontEnd` services fetch real-time data from the buyer’s key-value service, as well as the buyer owned proprietary code to generate bids.
+1. The `BuyerFrontEnd` service sends a `GenerateBids` request to the bidding service. The bidding service returns ad candidates with bids.
+1. The `BuyerFrontEnd` selects the top eligible ad candidate and returns the selection to the `SellerFrontEnd` with `AdWithBid`.
+1. Once `SellerFrontEnd` has received bids from all buyers, it requests real-time data from the seller’s key/value service required to score the ads for auction.
+1. `SellerFrontEnd` sends a `ScoreAds` request to the `auction` service to score and select a winner.
+1. `SellerFrontEnd` returns the winning ad and additional data to the client to render.
 
 ### Sell-side platform (SSP) system
 
-The following are the FLEDGE services that are to be operated by an SSP, also
-referred to as a Seller. Server instances are deployed so that they are
-co-located in a data center within a cloud region.
+The following are the FLEDGE services that are to be operated by an SSP, also referred to as a Seller. Server instances are deployed so that they are co-located in a data center within a cloud region.
 
 #### SellerFrontEnd service
 
-The `SellerFrontEnd` service orchestrates calls to other adtechs. For a
-single seller auction, this service sends requests to DSPs participating in
-the auction for bidding. This service also fetches real-time seller signals
-and adtech proprietary code required for the auction.
+The `SellerFrontEnd` service orchestrates calls to other adtechs. For a single seller auction, this service sends requests to DSPs participating in the auction for bidding. This service also fetches real-time seller signals and adtech proprietary code required for the auction.
 
-_Note: In this model and with the_ [_proposed APIs_][9], _a seller can have
- auction execution on a cloud platform only when all buyers participating in
- the auction also operate services for bidding on any supported cloud
- platform. If required for testing purposes, the client-facing API can be
- updated to support seller-run auctions in the cloud seamlessly, without
- depending on a buyer's adoption of services_.
+_Note: In this model and with the_ [_proposed APIs_][9], _a seller can have auction execution on a cloud platform only when all buyers participating in the auction also operate services for bidding on any supported cloud platform. If required for testing purposes, the client-facing API can be updated to support seller-run auctions in the cloud seamlessly, without depending on a buyer's adoption of services_.
 
 #### Auction service
 
-The `Auction` service only responds to requests from `SellerFrontEnd` service, with
-no outbound network access.
+The `Auction` service only responds to requests from `SellerFrontEnd` service, with no outbound network access.
 
-For every ad auction request, the `Auction` service executes seller owned auction
-code written in JavaScript or WebAssembly in a sandbox instance within a TEE.
-Execution of code in the sandbox within a TEE ensures that all input and output
-(such as logging, file access, and disk access) is disabled, and the service has
-no network or storage access.
+For every ad auction request, the `Auction` service executes seller owned auction code written in JavaScript or WebAssembly in a sandbox instance within a TEE. Execution of code in the sandbox within a TEE ensures that all input and output (such as logging, file access, and disk access) is disabled, and the service has no network or storage access.
 
-The hosting environment protects the confidentiality of the seller's proprietary
-code, if the execution happens only in the cloud and proprietary code is fetched
-in a `SellerFrontEnd` service.
+The hosting environment protects the confidentiality of the seller's proprietary code, if the execution happens only in the cloud and proprietary code is fetched in a `SellerFrontEnd` service.
 
 #### Seller's key/value service
 
-A key/value service is a critical dependency for the auction system. The
-[FLEDGE key/value service][10] receives requests from the `SellerFrontEnd`
-service in this architecture (or directly from the client in case bidding and
-auction runs locally on client's device). The service returns real-time seller
-data required for auction that corresponds to lookup keys available in buyers'
-bids (such as `ad_render_urls` or `ad_component_render_urls`).
+A key/value service is a critical dependency for the auction system. The [FLEDGE key/value service][10] receives requests from the `SellerFrontEnd` service in this architecture (or directly from the client in case bidding and auction runs locally on client's device). The service returns real-time seller data required for auction that corresponds to lookup keys available in buyers' bids (such as `ad_render_urls` or `ad_component_render_urls`).
 
-The seller’s key/value system may include other services running in a TEE. The
-details of this system are out of scope of this document.
+The seller’s key/value system may include other services running in a TEE. The details of this system are out of scope of this document.
 
 ### Demand-side platform (DSP) system
 
-This section describes FLEDGE services that will be operated by a DSP, also
-referred to as a buyer. Server instances are deployed such that they are
-co-located in a data center within a given cloud region.
+This section describes FLEDGE services that will be operated by a DSP, also referred to as a buyer. Server instances are deployed such that they are co-located in a data center within a given cloud region.
 
 #### BuyerFrontEnd service
 
-The front-end service of the system that receives requests to generate bids from
-a `SellerFrontEnd` service. This service fetches real-time bidding signals, buyer
-signals, and proprietary adtech code that is required for bidding.
+The front-end service of the system that receives requests to generate bids from a `SellerFrontEnd` service. This service fetches real-time bidding signals, buyer signals, and proprietary adtech code that is required for bidding.
 
-_Note: With the proposed APIs, a `BuyerFrontEnd` service can also receive requests
-directly from the client, such as an Android app or web browser. This is
-supported during the interim testing phase so that buyers (DSPs) can roll out
-servers independently without depending on seller (SSP) adoption_.
+_Note: With the proposed APIs, a `BuyerFrontEnd` service can also receive requests directly from the client, such as an Android app or web browser. This is supported during the interim testing phase so that buyers (DSPs) can roll out servers independently without depending on seller (SSP) adoption_.
 
 #### Bidding service
 
-The FLEDGE bidding service can only respond to requests from a `BuyerFrontEnd`
-service, and otherwise has no outbound network access. For every bidding
-request, the service executes buyer owned bidding code written in JavaScript and
-(optional) WebAssembly in a sandbox instance within a TEE. All input and output
-(such as logging, file access, and disk access) are disabled, and the service
-has no network or storage access.
+The FLEDGE bidding service can only respond to requests from a `BuyerFrontEnd` service, and otherwise has no outbound network access. For every bidding request, the service executes buyer owned bidding code written in JavaScript and (optional) WebAssembly in a sandbox instance within a TEE. All input and output (such as logging, file access, and disk access) are disabled, and the service has no network or storage access.
 
-This environment protects the confidentiality of a buyer's proprietary code, if
-the execution happens only in the cloud and proprietary code is fetched in a
-`BuyerFrontEnd` service.
+This environment protects the confidentiality of a buyer's proprietary code, if the execution happens only in the cloud and proprietary code is fetched in a `BuyerFrontEnd` service.
 
 #### Buyer’s key/value Service
 
-A buyer's key/value service is a critical dependency for the bidding system.
-The [FLEDGE key/value service][10] receives requests from the `BuyerFrontEnd`
-service in this architecture (or directly from the client in case bidding and
-auction runs locally on client's device). The service returns real-time buyer
-data required for bidding, corresponding to lookup keys
-(`bidding_signals_keys`).
+A buyer's key/value service is a critical dependency for the bidding system. The [FLEDGE key/value service][10] receives requests from the `BuyerFrontEnd` service in this architecture (or directly from the client in case bidding and auction runs locally on client's device). The service returns real-time buyer data required for bidding, corresponding to lookup keys (`bidding_signals_keys`).
 
-The buyer’s key/value system may include other services running in a TEE. The
-details of this system are out of scope of this document.
+The buyer’s key/value system may include other services running in a TEE. The details of this system are out of scope of this document.
 
 ### Dependencies
 
-Through techniques such as prefetching and caching, the following dependencies
-are in the non-critical path of ad serving.
+Through techniques such as prefetching and caching, the following dependencies are in the non-critical path of ad serving.
 
-- A key management system required for FLEDGE service attestation. Learn more
-  in the [FLEDGE Services public document][6].
-- A [K-anonymity service][11] ensures the ad is served to K unique users. This
-  service is a dependency for the `BuyerFrontEnd` service in this architecture.
-  The details are not included in this document, but will be covered in a
-  subsequent document.
+- A key management system required for FLEDGE service attestation. Learn more in the [FLEDGE Services public document][6].
+- A [K-anonymity service][11] ensures the ad is served to K unique users. This service is a dependency for the `BuyerFrontEnd` service in this architecture. The details are not included in this document, but will be covered in a subsequent document.
 
 ## API
 
-This API proposal for FLEDGE services is based on the gRPC framework.
-[gRPC][12] is an open source, high performance RPC framework built
-on top of HTTP2 that is used to build scalable and fast APIs. gRPC uses
-[protocol buffers][13] as the [interface description
-language][14] and underlying message interchange format.
+This API proposal for FLEDGE services is based on the gRPC framework. [gRPC][12] is an open source, high performance RPC framework built on top of HTTP2 that is used to build scalable and fast APIs. gRPC uses [protocol buffers][13] as the [interface description language][14] and underlying message interchange format.
 
-FLEDGE services expose RPC API endpoints. In this document, the proposed API
-definitions use [proto3][15].
+FLEDGE services expose RPC API endpoints. In this document, the proposed API definitions use [proto3][15].
 
-All communications between FLEDGE services are RPC and are encrypted. All
-client-to-server communication is also encrypted. Refer to the [FLEDGE services
-explainer][6] for more information.
+All communications between FLEDGE services are RPC and are encrypted. All client-to-server communication is also encrypted. Refer to the [FLEDGE services explainer][6] for more information.
 
-A client, such as an Android app or web browser, can call FLEDGE services using
-RPC or HTTPS. A proxy service hosted in the same VM instance as the FLEDGE
-service converts HTTPS requests to RPC. Details of this service are out of scope
-of this document.
+A client, such as an Android app or web browser, can call FLEDGE services using RPC or HTTPS. A proxy service hosted in the same VM instance as the FLEDGE service converts HTTPS requests to RPC. Details of this service are out of scope of this document.
 
-Requests to FLEDGE services and corresponding responses are encrypted. Every
-request includes an encrypted payload (`request_ciphertext`) and a raw key
-version (`key_id`) which corresponds to the public key that is used to encrypt
-the request. The service that decrypts the request will have to use private
-keys(corresponding to the same key version) to decrypt the request.
+Requests to FLEDGE services and corresponding responses are encrypted. Every request includes an encrypted payload (`request_ciphertext`) and a raw key version (`key_id`) which corresponds to the public key that is used to encrypt the request. The service that decrypts the request will have to use private keys(corresponding to the same key version) to decrypt the request.
 
 ### Public APIs
 
-A client such as an Android app or web browser can access public APIs. Clients
-can send RPC or HTTPS to FLEDGE service.
+A client such as an Android app or web browser can access public APIs. Clients can send RPC or HTTPS to FLEDGE service.
 
 #### Protocol buffer <-> JSON / YAML
 
-Given gRPC APIs are defined as protocol buffers, following are some options to
-convert protocol buffers to JSON or YAML.
+Given gRPC APIs are defined as protocol buffers, following are some options to convert protocol buffers to JSON or YAML.
 
-[Proto3][15] has a built-in JSON serializer and parser. These libraries have
-multi-language support and can be used to convert protocol buffer message
-objects to JSON and vice-versa.
+[Proto3][15] has a built-in JSON serializer and parser. These libraries have multi-language support and can be used to convert protocol buffer message objects to JSON and vice-versa.
 
 - C++:
   - [json_util.h][16]
@@ -232,27 +121,15 @@ objects to JSON and vice-versa.
 
 _Learn more about_ [_Proto3 to JSON mapping_][18].
 
-YAML can also be used with HTTPS. The open source tool [gnostic][19] can
-convert protocol buffers to and from YAML Open API descriptions.
+YAML can also be used with HTTPS. The open source tool [gnostic][19] can convert protocol buffers to and from YAML Open API descriptions.
 
-Also, you may refer to the [protoc-gen-openapi plugin][20] to generate Open
-API output corresponding to a proto definition.
+Also, you may refer to the [protoc-gen-openapi plugin][20] to generate Open API output corresponding to a proto definition.
 
 #### SelectWinningAd
 
-The Seller FrontEnd service (`SellerFrontEnd`) exposes an API endpoint
-(`SelectWinningAd`). A client such as Android device or web browser sends a
-`SelectWinningAd` RPC or HTTPS request to `SellerFrontEnd`. After processing
-the request, the `SelectWinningAdResponse` includes the winning ad for the
-publisher ad slot that would render on the user's device.
+The Seller FrontEnd service (`SellerFrontEnd`) exposes an API endpoint (`SelectWinningAd`). A client such as Android device or web browser sends a `SelectWinningAd` RPC or HTTPS request to `SellerFrontEnd`. After processing the request, the `SelectWinningAdResponse` includes the winning ad for the publisher ad slot that would render on the user's device.
 
-_Note: The following API is designed for the desired end state, where sellers
- and all buyers operate auction and bidding services (respectively) in the
- cloud. The `SelectWinningAd` API can be updated so that sellers (SSPs) can
- roll out services in the cloud independently. In such a scenario,
- `SellerFrontEndService` will not orchestrate bidding requests to buyers, but
- will still be able to execute auctions in the cloud. This setup is only
- recommended during the testing and early adoption phase_.
+_Note: The following API is designed for the desired end state, where sellers and all buyers operate auction and bidding services (respectively) in the cloud. The `SelectWinningAd` API can be updated so that sellers (SSPs) can roll out services in the cloud independently. In such a scenario, `SellerFrontEndService` will not orchestrate bidding requests to buyers, but will still be able to execute auctions in the cloud. This setup is only recommended during the testing and early adoption phase_.
 
 Following is the `SelectWinningAd` API definition.
 
@@ -319,7 +196,7 @@ message SelectWinningAdRequest {
 
         CustomSellerInputsForBrowser custom_seller_inputs_browser = 2;
       }
- 
+
       // Url for fetching seller owned auction code.
       // For simplicity, this is one url. However, separate endpoints to fetch
       // JS and WASM may be added later.
@@ -338,7 +215,7 @@ message SelectWinningAdRequest {
       // Represents a JSON object.
       google.protobuf.Struct seller_signals = 5;
 
-      // Information about auction (ad format, size). 
+      // Information about auction (ad format, size).
       // This information is required for both bidding and auction.
       // Represents a JSON object.
       google.protobuf.Struct auction_signals = 6;
@@ -382,7 +259,7 @@ message SelectWinningAdRequest {
     map<string, bytes> encrypted_input_per_buyer = 3;
 
     // Includes configuration data required in Remarketing ad auction.
-    // Some of the data in AuctionConfig is passed to BuyerFrontEnd. 
+    // Some of the data in AuctionConfig is passed to BuyerFrontEnd.
     AuctionConfig auction_config = 4;
 
     // Type of end user's device / client, that would help in validating the
@@ -425,7 +302,7 @@ message SelectWinningAdResponse {
     // available in open source repo.
     string server_binary_version = 5;
   }
-  
+
   // Encrypted SelectWinningAdRawResponse.
   bytes response_ciphertext = 1;
 }
@@ -452,11 +329,7 @@ message Ad {
 
 ##### BuyerInput
 
-Encrypted `BuyerInput` data corresponding to each buyer participating in the
-auction, is passed in the umbrella request (`SelectWinningAdRequest`) from
-the client to the `SellerFrontEnd` service. The `BuyerInput` is encrypted in
-the client and decrypted in the `BuyerFrontEnd` service operated by the
-buyer.
+Encrypted `BuyerInput` data corresponding to each buyer participating in the auction, is passed in the umbrella request (`SelectWinningAdRequest`) from the client to the `SellerFrontEnd` service. The `BuyerInput` is encrypted in the client and decrypted in the `BuyerFrontEnd` service operated by the buyer.
 
 ```
 syntax = "proto3";
@@ -518,7 +391,7 @@ message BuyerInput {
     // use during bidding.
     google.protobuf.Struct user_bidding_signals = 9;
   }
-  
+
   // The Custom Audiences (a.k.a Interest Groups) corresponding to the buyer.
   repeated CustomAudience custom_audiences = 1;
 
@@ -560,18 +433,11 @@ message BuyerInput {
 
 #### GetBid
 
-The `BuyerFrontEnd` service exposes an API endpoint `GetBid`. The
-`SellerFrontEnd` service sends `GetBidRequest` to the `BuyerFrontEnd` service
-with encrypted `BuyerInput` and other data. After processing the request,
-`BuyerFrontEnd` returns `GetBidResponse`, which includes a bid and other data
-corresponding to the top eligible ad candidate. Refer to [`AdWithBid`][22]
-for more information.
+The `BuyerFrontEnd` service exposes an API endpoint `GetBid`. The `SellerFrontEnd` service sends `GetBidRequest` to the `BuyerFrontEnd` service with encrypted `BuyerInput` and other data. After processing the request, `BuyerFrontEnd` returns `GetBidResponse`, which includes a bid and other data corresponding to the top eligible ad candidate. Refer to [`AdWithBid`][22] for more information.
 
-The communication between the `BuyerFrontEnd` service and the `SellerFrontEnd`
-service is between each service’s TEE and is end-to-end encrypted.
+The communication between the `BuyerFrontEnd` service and the `SellerFrontEnd` service is between each service’s TEE and is end-to-end encrypted.
 
-_Note: Temporarily, as adtechs test these systems, clients can call
- `BuyerFrontEnd` services directly using the API below_.
+_Note: Temporarily, as adtechs test these systems, clients can call `BuyerFrontEnd` services directly using the API below_.
 
 ```
 syntax = "proto3";
@@ -621,7 +487,7 @@ message GetBidRequest{
       google.protobuf.Struct browser_signals = 5;
     }
   }
-  
+
   // Encrypted GetBidRawRequest.
   bytes request_ciphertext = 1;
 
@@ -639,7 +505,7 @@ message GetBidResponse {
     // Represents a JSON object.
     AdWithBid bid = 1;
   }
-  
+
   // Encrypted GetBidRawResponse.
   bytes response_ciphertext = 1;
 }
@@ -647,9 +513,7 @@ message GetBidResponse {
 
 ##### AdWithBid
 
-The bid for an ad candidate, includes `ad_render_url, ad_metadata,
-custom_audience_name` and corresponding `bid_price`. This is returned
-in [`GetBidResponse`][23].
+The bid for an ad candidate, includes `ad_render_url, ad_metadata, custom_audience_name` and corresponding `bid_price`. This is returned in [`GetBidResponse`][23].
 
 ```
 syntax = "proto3";
@@ -672,21 +536,13 @@ message AdWithBid {
 
 ### Internal APIs
 
-Internal APIs refer to the interface for communication between FLEDGE services
-within a SSP system or DSP system.
+Internal APIs refer to the interface for communication between FLEDGE services within a SSP system or DSP system.
 
 #### GenerateBids
 
-The `Bidding` service exposes an API endpoint `GenerateBids`. The
-`BuyerFrontEnd` service sends `GenerateBidsRequest` to the `Bidding` service,
-which includes the buyer's proprietary bidding code and required input. After
-processing the request, the `Bidding` service returns the
-`GenerateBidsResponse` which includes bids that correspond to each ad
-(`AdWithBid`).
+The `Bidding` service exposes an API endpoint `GenerateBids`. The `BuyerFrontEnd` service sends `GenerateBidsRequest` to the `Bidding` service, which includes the buyer's proprietary bidding code and required input. After processing the request, the `Bidding` service returns the `GenerateBidsResponse` which includes bids that correspond to each ad (`AdWithBid`).
 
-The communication between the `BuyerFrontEnd` service and `Bidding` service
-occurs between each service’s TEE and request-response is end-to-end
-encrypted.
+The communication between the `BuyerFrontEnd` service and `Bidding` service occurs between each service’s TEE and request-response is end-to-end encrypted.
 
 ```
 syntax = "proto3";
@@ -703,7 +559,7 @@ service Bidding {
 message GenerateBidsRequest {
   // Unencrypted request.
   message GenerateBidsRawRequest {
-    // Custom Audience (a.k.a Interest Group) for bidding. 
+    // Custom Audience (a.k.a Interest Group) for bidding.
     message CustomAudienceForBidding {
       // Unique string that identifies the Custom Audience (a.k.a Interest
       // Group) for a buyer.
@@ -819,7 +675,7 @@ message GenerateBidsRequest {
       // Audiences from a particular buyer that participates in the auction. This
       // can also be a default value if the limit is unspecified for the buyer.
       int64 buyer_group_limit = 2;
-    } 
+    }
 
     // Optional. Custom parameters for bidding.
     oneof CustomBiddingParams {
@@ -828,7 +684,7 @@ message GenerateBidsRequest {
       CustomBiddingParamsForBrowser custom_bidding_params_browser = 7;
     }
   }
-  
+
   // Encrypted GenerateBidsRawRequest.
   bytes request_ciphertext = 1;
 
@@ -846,7 +702,7 @@ message GenerateBidsResponse {
     // Bids corresponding to ads.
     repeated AdWithBid bids = 1;
   }
-  
+
   // Encrypted GenerateBidsRawResponse.
   bytes response_ciphertext = 1;
 }
@@ -854,16 +710,9 @@ message GenerateBidsResponse {
 
 #### ScoreAds
 
-The `Auction` service exposes an API endpoint `ScoreAds`. The `SellerFrontEnd`
-service sends a `ScoreAdsRequest` to the `Auction` service with the Seller's
-proprietary auction code and inputs required by the code. The inputs include
-bids from each buyer and other required signals. After processing the
-request, the `Auction` service returns the `ScoreAdsResponse` that includes
-scores corresponding to each ad.
+The `Auction` service exposes an API endpoint `ScoreAds`. The `SellerFrontEnd` service sends a `ScoreAdsRequest` to the `Auction` service with the Seller's proprietary auction code and inputs required by the code. The inputs include bids from each buyer and other required signals. After processing the request, the `Auction` service returns the `ScoreAdsResponse` that includes scores corresponding to each ad.
 
-The communication between the `SellerFrontEnd` service and `Auction` service
-occurs within each service’s TEE and request-response is end-to-end
-encrypted.
+The communication between the `SellerFrontEnd` service and `Auction` service occurs within each service’s TEE and request-response is end-to-end encrypted.
 
 ```
 syntax = "proto3";
@@ -894,7 +743,7 @@ message ScoreAdsRequest {
     /**************** Inputs to JavaScript auction code module ****************/
 
     // Ad with bid.
-    // This includes an ad object comprising ad render url and ad metadata, 
+    // This includes an ad object comprising ad render url and ad metadata,
     // bid corresponding to the ad, the name of Custom Audience (a.k.a Interest
     // Group) the ad belongs to.
     // The ad object and bid will be converted to a JSON objects before passing
@@ -1006,10 +855,10 @@ message ScoreAdsResponse {
 
     /***************** Only relevant to Component Auctions *******************/
     // Additional fields for Component Auctions.
-   
-    // Optional. Arbitrary metadata to pass to top level seller. 
+
+    // Optional. Arbitrary metadata to pass to top level seller.
     string  ad_metadata = 5;
- 
+
     // Optional for Android, required for Web in case of component auctions.
     // If the bid being scored is from a component auction and this value is not
     // true, the bid is ignored. If not present, this value is considered false.
@@ -1024,13 +873,13 @@ message ScoreAdsResponse {
     // top-level auction respectively.
     double modified_bid = 7;
   }
- 
+
   // Unencrypted response.
   message ScoreAdsRawResponse {
     // Scores of ads participating in the auction.
     repeated AdScore ad_scores = 1;
   }
-  
+
   // Encrypted ScoreAdsRawResponse.
   bytes response_ciphertext = 1;
 }
