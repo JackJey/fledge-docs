@@ -2,7 +2,7 @@
 
 The [Privacy Sandbox](https://privacysandbox.com) aims to develop technologies that reduce cross-site and cross-app tracking while helping to keep online content and services free for all on Android and Chrome. FLEDGE ([Android](https://developer.android.com/design-for-safety/ads/fledge), [Chrome](https://developer.chrome.com/docs/privacy-sandbox/fledge/)) provides a privacy-preserving way to serve personalized ads to users, based on their previous mobile app or web engagement, in ways that limit third-party data sharing. FLEDGE for Android and Chrome requires **real-time services** running in **secure environments**.
 
-[Privacy Sandbox](https://privacysandbox.com)は、Android と Chrome において、オンラインコンテンツとサービスをすべての人に無料で提供し続けることを支援しながら、クロスサイトおよびクロスアプリトラッキングを削減する技術を開発することを目的としています。FLEDGE（[Android](https://developer.android.com/design-for-safety/ads/fledge), [Chrome](https://developer.chrome.com/docs/privacy-sandbox/fledge/)）は、第三者のデータ共有を制限する方法で、以前のモバイルアプリやウェブへの関与に基づいて、パーソナライズされた広告をユーザーに提供するプライバシー保護方法を提供するものです。FLEDGE for Android および Chrome は、**安全な環境**で動作する**リアルタイムサービス**を必要とします。
+[Privacy Sandbox](https://privacysandbox.com)は、Android と Chrome において、オンラインコンテンツとサービスをすべての人に無料で提供し続けることを支援しながら、クロスサイトおよびクロスアプリトラッキングを削減する技術を開発することを目的としています。FLEDGE([Android](https://developer.android.com/design-for-safety/ads/fledge), [Chrome](https://developer.chrome.com/docs/privacy-sandbox/fledge/))は、第三者のデータ共有を制限する方法で、以前のモバイルアプリやウェブへの関与に基づいて、パーソナライズされた広告をユーザーに提供するプライバシー保護方法を提供するものです。FLEDGE for Android および Chrome は、**安全な環境**で動作する**リアルタイムサービス**を必要とします。
 
 Ad remarketing is one of the primary uses of FLEDGE. Real-time services are critical for FLEDGE because:
 
@@ -11,7 +11,7 @@ Ad remarketing is one of the primary uses of FLEDGE. Real-time services are crit
 - Real-time signals from adtechs are required to serve remarketing ads.
 - Some computations may be overly-expensive or infeasible to execute on client devices. As these computations are necessary, they should be able to be offloaded to the cloud, without affecting the speed or privacy of the ad auction and bidding service proposed by FLEDGE.
 
-In this document, you’ll find a high-level overview of the proposal for FLEDGE services.
+In this document, you'll find a high-level overview of the proposal for FLEDGE services.
 
 この文書では、FLEDGE サービスの提案の概要を説明します。
 
@@ -25,8 +25,8 @@ Before reading this document, familiarize yourself with these key terms and conc
   - _Supply-side platform ("sellers"):_ A digital advertising company that works with publishers to determine what ads to show in the ad slots offered by the publisher.
   - _Demand-side platform ("buyers")_: A digital advertising company that works with advertisers to display ads across various ad slots made available by publishers.
 - _Client / client software_: An Android device or a Chrome browser that supports the Privacy Sandbox.
-- _[Trusted execution environment (TEE)](#trusted-execution-environment)_: A combination of hardware and software that provides a secure environment. TEEs allow code to execute in isolation and protect data that exists within it. TEEs allow external parties to verify that the software does exactly what the software manufacturer claims it does—nothing more or less. Communication between the client and the TEE is encrypted, as is communication between the TEE and another TEE.
-- _FLEDGE service_: A real-time service that runs inside of a TEE, that can’t be accessed by any other workload or process running on the same machine. The service code is open source and externally verifiable. These services are not modifiable by their operators or infrastructure admins.
+- _[Trusted execution environment (TEE)](#trusted-execution-environment)_: A combination of hardware and software that provides a secure environment. TEEs allow code to execute in isolation and protect data that exists within it. TEEs allow external parties to verify that the software does exactly what the software manufacturer claims it does-nothing more or less. Communication between the client and the TEE is encrypted, as is communication between the TEE and another TEE.
+- _FLEDGE service_: A real-time service that runs inside of a TEE, that can't be accessed by any other workload or process running on the same machine. The service code is open source and externally verifiable. These services are not modifiable by their operators or infrastructure admins.
 - _Service operator_: An entity that operates real-time services to support FLEDGE.
 - _[Key management system](#key-management-systems)_: A centralized component that generates, manages and distributes cryptographic keys to clients and services.
 - _Attestation_: A mechanism to authenticate software identity with [cryptographic hashes](https://en.wikipedia.org/wiki/Cryptographic_hash_function) or signatures.
@@ -35,7 +35,7 @@ Before reading this document, familiarize yourself with these key terms and conc
 
 A [trusted execution environment (TEE)](https://confidentialcomputing.io/wp-content/uploads/sites/85/2021/03/confidentialcomputing_outreach_whitepaper-8-5x11-1.pdf) provides a level of assurance for data integrity, data confidentiality, and code integrity. A hardware-based TEE uses hardware-backed techniques to provide increased security guarantees for code execution and data protection within that environment.
 
-信頼できる実行環境(TEE)](https://confidentialcomputing.io/wp-content/uploads/sites/85/2021/03/confidentialcomputing_outreach_whitepaper-8-5x11-1.pdf)は、データの完全性、データの機密性、コードの完全性に対して保証のレベルを提供します。ハードウェアベースのTEEは、ハードウェアに裏打ちされた技術を使用して、その環境内でのコード実行とデータ保護に対するセキュリティ保証を強化するものです。
+[trusted execution environment (TEE)](https://confidentialcomputing.io/wp-content/uploads/sites/85/2021/03/confidentialcomputing_outreach_whitepaper-8-5x11-1.pdf)は、データの完全性、データの機密性、コードの完全性に対して保証のレベルを提供します。ハードウェアベースの TEE は、ハードウェアに裏打ちされた技術を使用して、その環境内でのコード実行とデータ保護に対するセキュリティ保証を強化するものです。
 
 Some of the key properties of a TEE include:
 
@@ -54,12 +54,12 @@ TEE で動作するサービスは、必要なセキュリティ機能をサポ�
 
 ## Privacy considerations
 
-In the proposed architecture for the FLEDGE services, we’ve made the following privacy considerations:
+In the proposed architecture for the FLEDGE services, we've made the following privacy considerations:
 
 FLEDGE サービスの提案アーキテクチャでは、以下のようなプライバシーへの配慮をしています。
 
 - Service operators can run real-time services on a public cloud platform that supports the necessary security features.
-- Privacy protection of the FLEDGE service and the binary version of the virtual machine’s guest operating system are externally verifiable.
+- Privacy protection of the FLEDGE service and the binary version of the virtual machine's guest operating system are externally verifiable.
 - The FLEDGE services run in a TEE.
 - Service code, APIs, and configurations are open source and externally verifiable.
   - Note: Closed-source proprietary code can run within a TEE. In this trust model, closed-source proprietary code execution is allowed for certain use cases where execution is limited to another sandbox in the same TEE that preserves the same privacy considerations and security goals.
@@ -179,13 +179,13 @@ HPKE は、追加のラウンドトリップや余分なレイテンシのオー
 
 Each FLEDGE service is hosted in a secure virtual machine (TEE). Secure virtual machines run on physical hosts powered by secure hardware processors.
 
-各 FLEDGE サービスは、セキュアな仮想マシン（TEE）でホストされています。セキュアな仮想マシンは、セキュアなハードウェアプロセッサを搭載した物理ホスト上で実行されます。
+各 FLEDGE サービスは、セキュアな仮想マシン(TEE)でホストされています。セキュアな仮想マシンは、セキュアなハードウェアプロセッサを搭載した物理ホスト上で実行されます。
 
 ![FLEDGE key exchange diagram](images/fledge-keys.png)
 
 The FLEDGE service sends requests to the key management system to fetch private keys and public keys at service bootstrap. Before such keys are granted to the service, the binary hash of the FLEDGE service and guest operating system running on the virtual machine is validated against a hash of the open source image; this validation process is termed as attestation.
 
-FLEDGE サービスは、サービスの起動時に鍵管理システムにリクエストを送信し、秘密鍵と公開鍵を取得します。このような鍵がサービスに付与される前に、仮想マシン上で実行されている FLEDGE サービスとゲスト OS のバイナリハッシュが、オープンソースイメージのハッシュに対して検証されます（この検証プロセスは「認証」と呼ばれます）。
+FLEDGE サービスは、サービスの起動時に鍵管理システムにリクエストを送信し、秘密鍵と公開鍵を取得します。このような鍵がサービスに付与される前に、仮想マシン上で実行されている FLEDGE サービスとゲスト OS のバイナリハッシュが、オープンソースイメージのハッシュに対して検証されます(この検証プロセスは「認証」と呼ばれます)。
 
 - The FLEDGE service sends requests to private key hosting services to pre-fetch private keys. Private keys are granted to a FLEDGE service only after attestation.
   - A private key is split into two fragments. These fragments are fetched from the private key hosting endpoints which belong to Key Management System A and Key Management System B.
@@ -254,7 +254,7 @@ Public keys have a client side time-to-live (TTL) of N days. Corresponding priva
 
 - Developers author open source service code and Google releases source code to an open source repository (GitHub).
   - Google はバイナリ検証のために、ビルドの成果物を[github.com/privacysandbox](https://github.com/privacysandbox) org のオープンソースリポに公開することもあります。
-- 開発者はオープンソースのサービスコードを作成し、Google はソースコードをオープンソースリポジトリ（GitHub）に公開する。
+- 開発者はオープンソースのサービスコードを作成し、Google はソースコードをオープンソースリポジトリ(GitHub)に公開する。
   - Google may also publish build artifacts to an open source repo in [github.com/privacysandbox](https://github.com/privacysandbox) org for binary validation.
 
 ### Deployment by adtechs
@@ -291,4 +291,4 @@ Programmatic bidding and auction can be computation heavy, such that it may be i
 
 Refer to the [Bidding and auction service API explainer](https://github.com/privacysandbox/fledge-docs/blob/main/bidding_auction_services_api.md) for more information. There will be follow up documents describing the design of ad bidding and auction services.
 
-詳しくは【入札・オークションサービス API 解説】(https://github.com/privacysandbox/fledge-docs/blob/main/bidding_auction_services_api.md)をご参照ください。広告入札・オークションサービスの設計については、追ってドキュメントを作成する予定です。
+詳しくは [入札・オークションサービス API 解説](https://github.com/privacysandbox/fledge-docs/blob/main/bidding_auction_services_api.md)をご参照ください。広告入札・オークションサービスの設計については、追ってドキュメントを作成する予定です。

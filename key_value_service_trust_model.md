@@ -15,7 +15,7 @@ We are currently in an early requirements gathering and design phase and aim to 
 
 [FLEDGE is a proposal](https://github.com/WICG/turtledove/blob/main/FLEDGE.md) for an API to serve remarketing use cases without third-party cookies. [FLEDGE services](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md) add real-time signals into ad selection for both buyers and sellers.
 
-[FLEDGE は、サードパーティの Cookie を使わずにリマーケティングのユースケースを提供する API の提案](https://github.com/WICG/turtledove/blob/main/FLEDGE.md)である。[FLEDGE サービス](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md)は、買い手と売り手の双方にとって、広告の選択にリアルタイムシグナルを追加するものです。
+[FLEDGE](https://github.com/WICG/turtledove/blob/main/FLEDGE.md) は、サードパーティの Cookie を使わずにリマーケティングのユースケースを提供する API の提案である。[FLEDGE サービス](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md)は、買い手と売り手の双方にとって、広告の選択にリアルタイムシグナルを追加するものです。
 
 Overall, this explainer proposes using similar techniques to the [Aggregation Service proposal](https://github.com/WICG/conversion-measurement-api/blob/main/AGGREGATION_SERVICE_TEE.md) for the Attribution Reporting API, while some specific areas may benefit from improvements in the future for better performance.
 
@@ -35,9 +35,9 @@ FLEDGE API のキー/バリューサービスは、技術的な手段によっ�
 ---
 
 1. FLEDGE におけるプライバシー保護のための Privacy Sandbox の設計目標を支持すること。
-1. アドテクが提供するリアルタイムデータの制御を保持できるようにする。
-1. ルックアップキー（または他の中間データ）への不適切なアクセスを防止し、技術的な強制力によりユーザーデータの記録/存続を防止する。
-1. クライアント外のあらゆるインフラに対して、オープンで透明性の高い実装を提供すること。
+2. アドテクが提供するリアルタイムデータの制御を保持できるようにする。
+3. ルックアップキー(または他の中間データ)への不適切なアクセスを防止し、技術的な強制力によりユーザーデータの記録/存続を防止する。
+4. クライアント外のあらゆるインフラに対して、オープンで透明性の高い実装を提供すること。
 
 ## Key terms
 
@@ -53,11 +53,11 @@ Before reading this explainer, it will be helpful to familiarize yourself with k
 
 ---
 
-Adtech: 広告を配信するサービスを提供する会社である。FLEDGE 説明書】(https://github.com/WICG/turtledove/blob/main/FLEDGE.md#summary)に記載されている、キー/バリューサービスを利用する買い手と売り手のことを指します。
-Client software: ブラウザ（[Chrome ブラウザ](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#31-fetching-real-time)など）やデバイス（[Android デバイス](https://developer.android.com/design-for-safety/privacy-sandbox/fledge#ad-selection-ad-tech-platform-managed-trusted-server)など）で FLEDGE を実装するための略記。
-Attestation: ソフトウェアの同一性を認証するメカニズムで、通常は [暗号ハッシュ](https://en.wikipedia.org/wiki/Cryptographic_hash_function) や署名を使用します。この提案では、認証は、アドテクノロジーが運営するキー/バリューサービスで実行されるコードとオープンソースコードを照合します。
-Trusted execution environment (TEE): ハードウェアメモリ保護とストレージの暗号化保護によって隔離された、専用の閉じた実行コンテキストです。TEE のコンテンツは、ルートユーザーを含む権限のない第三者による観察や改ざんから保護されています。
-Key management service (KMS): 適切に保護された FLEDGE サービス・インスタンスに復号化鍵を提供することを任務とする集中管理コンポーネントである。エンドユーザー・デバイスへの公開暗号鍵の提供および鍵のローテーションも、鍵管理の対象となる。
+- Adtech: 広告を配信するサービスを提供する会社である。[FLEDGE 説明書](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#summary)に記載されている、キー/バリューサービスを利用する買い手と売り手のことを指します。
+- Client software: ブラウザ([Chrome ブラウザ](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#31-fetching-real-time)など)やデバイス([Android デバイス](https://developer.android.com/design-for-safety/privacy-sandbox/fledge#ad-selection-ad-tech-platform-managed-trusted-server)など)で FLEDGE を実装するための略記。
+- Attestation: ソフトウェアの同一性を認証するメカニズムで、通常は [暗号ハッシュ](https://en.wikipedia.org/wiki/Cryptographic_hash_function) や署名を使用します。この提案では、認証は、アドテクノロジーが運営するキー/バリューサービスで実行されるコードとオープンソースコードを照合します。
+- Trusted execution environment (TEE): ハードウェアメモリ保護とストレージの暗号化保護によって隔離された、専用の閉じた実行コンテキストです。TEE のコンテンツは、ルートユーザーを含む権限のない第三者による観察や改ざんから保護されています。
+- Key management service (KMS): 適切に保護された FLEDGE サービス・インスタンスに復号化鍵を提供することを任務とする集中管理コンポーネントである。エンドユーザー・デバイスへの公開暗号鍵の提供および鍵のローテーションも、鍵管理の対象となる。
 
 ## Key/value service workflow
 
@@ -74,10 +74,10 @@ Adtech は、キー/バリューサービスを使用して、FLEDGE の広告�
 ---
 
 1. アドテクノロジーは、必要な TEE 機能を持つクラウドプロバイダー上にキー／バリューサービスを展開し、運用します。
-1. アドテクノロジーは、キー/バリューデータをサービスにロードし、このデータに対していつでも変更を加えることができます。
-1. アドテクノロジーが運営するキー／バリュー・サービスは、リクエストを解読するために、TEE で承認されたバージョンのコードを実行していることを証明することで、KMS から事前に入手した秘密鍵を使用します。KMS は秘密鍵を何にも、誰にも公開しない。転送中のデータを保護する他のメカニズムも、将来的に検討されるかもしれない。
-1. FLEDGE オークションの実行中、クライアントデバイスは買い手または売り手が指定したキー/バリューサービスにルックアップリクエストを送信します。転送中のデータは暗号化され、ジョブのみが平文を見ることができるようになります。
-1. このサービスは、キーに対応するデータを検索し、暗号化された形で返します。FLEDGE Key/Value Server APIs Explainer](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md)を参照してください。
+2. アドテクノロジーは、キー/バリューデータをサービスにロードし、このデータに対していつでも変更を加えることができます。
+3. アドテクノロジーが運営するキー／バリュー・サービスは、リクエストを解読するために、TEE で承認されたバージョンのコードを実行していることを証明することで、KMS から事前に入手した秘密鍵を使用します。KMS は秘密鍵を何にも、誰にも公開しない。転送中のデータを保護する他のメカニズムも、将来的に検討されるかもしれない。
+4. FLEDGE オークションの実行中、クライアントデバイスは買い手または売り手が指定したキー/バリューサービスにルックアップリクエストを送信します。転送中のデータは暗号化され、ジョブのみが平文を見ることができるようになります。
+5. このサービスは、キーに対応するデータを検索し、暗号化された形で返します。[FLEDGE Key/Value Server APIs Explainer](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md)を参照してください。
 
 ## Privacy and security considerations
 
@@ -132,16 +132,16 @@ The main threats that we're concerned with are:
 私たちが関心を寄せる主な脅威は、以下の通りです。
 
 1. That the timestamp of the request could be used to correlate the lookup keys with the request of the top-level page and thus identify a user. This is mitigated by limiting the logs that are written.
-2. During the FLEDGE auction, a client asks a key/value service about an assortment of keys that were previously stored on the client — perhaps including keys that were stored in multiple different contexts. That set of keys, therefore, risks leaking some information about the client's activity. The privacy goal of key/value service design is to give the client confidence that the set of keys cannot be used for tracking or profiling purposes. This threat is mitigated by the TEE protections to allow only pre-approved code.
-   1. Note that the values being stored in the key/value service are loaded by adtechs and expected to be publicly visible to clients. These are therefore not confidential.
-3. The user's IP address could be used for fingerprinting. This is mitigated by the logging requirements and TEE protections to allow only pre-approved code. 2. We also have the option to route the traffic to these instances through [Gnatcatcher](https://github.com/bslassey/ip-blindness) to mask the user's IP address.
+2. During the FLEDGE auction, a client asks a key/value service about an assortment of keys that were previously stored on the client - perhaps including keys that were stored in multiple different contexts. That set of keys, therefore, risks leaking some information about the client's activity. The privacy goal of key/value service design is to give the client confidence that the set of keys cannot be used for tracking or profiling purposes. This threat is mitigated by the TEE protections to allow only pre-approved code.
+3. Note that the values being stored in the key/value service are loaded by adtechs and expected to be publicly visible to clients. These are therefore not confidential.
+4. The user's IP address could be used for fingerprinting. This is mitigated by the logging requirements and TEE protections to allow only pre-approved code. 2. We also have the option to route the traffic to these instances through [Gnatcatcher](https://github.com/bslassey/ip-blindness) to mask the user's IP address.
 
 ---
 
 1. リクエストのタイムスタンプが、ルックアップキーをトップページのリクエストと関連付けるために使われ、その結果ユーザを特定することができること。これは、書き込まれるログを制限することで緩和される。
-2. FLEDGE オークションの間、クライアントは key/value サービスに、そのクライアントに以前保管されていた様々な鍵（おそらく複数の異なるコンテキストで保管されていた鍵も含む）について問い合わせる。そのため、その鍵の集合は、クライアントの活動に関する何らかの情報を漏洩する危険性がある。鍵/価値サービスの設計におけるプライバシーの目標は、鍵のセットが追跡やプロファイリング の目的で使用されないという確信をクライアントに与えることである。この脅威は、事前に承認されたコードのみを許可する TEE 保護機能によって軽減される。
-   1. Key/Value サービスに格納される値は、アドテクノロジーによって読み込まれ、クライアントから一般に見えることが期待されていることに留意してください。したがって、これらは機密情報ではありません。
-3. ユーザーの IP アドレスがフィンガープリントに使われる可能性がある。これは、事前に承認されたコードのみを許可するためのロギング要件と TEE 保護によって緩和されます。2.また、これらのインスタンスへのトラフィックを[Gnatcatcher](https://github.com/bslassey/ip-blindness)を介してルーティングし、ユーザーの IP アドレスをマスクするオプションもあります。
+2. FLEDGE オークションの間、クライアントは key/value サービスに、そのクライアントに以前保管されていた様々な鍵(おそらく複数の異なるコンテキストで保管されていた鍵も含む)について問い合わせる。そのため、その鍵の集合は、クライアントの活動に関する何らかの情報を漏洩する危険性がある。鍵/価値サービスの設計におけるプライバシーの目標は、鍵のセットが追跡やプロファイリング の目的で使用されないという確信をクライアントに与えることである。この脅威は、事前に承認されたコードのみを許可する TEE 保護機能によって軽減される。
+3. Key/Value サービスに格納される値は、アドテクノロジーによって読み込まれ、クライアントから一般に見えることが期待されていることに留意してください。したがって、これらは機密情報ではありません。
+4. ユーザーの IP アドレスがフィンガープリントに使われる可能性がある。これは、事前に承認されたコードのみを許可するためのロギング要件と TEE 保護によって緩和されます。2.また、これらのインスタンスへのトラフィックを[Gnatcatcher](https://github.com/bslassey/ip-blindness)を介してルーティングし、ユーザーの IP アドレスをマスクするオプションもあります。
 
 ### Side effects
 
@@ -150,34 +150,34 @@ There are a number of ways that visible side effects of request handling are pos
 リクエスト処理による目に見える副作用は、一般的にサーバーで可能な方法がいくつかあります。ここでは、それらの影響をどのように軽減していくかを計画しています。
 
 1. Monitoring metrics - Only noised aggregate metrics will be available for monitoring and alerting. These will be aggregated to at least k size.
-   1. For example, counting the approximate number of failed requests in the past n minutes is likely to be fine but doing so at millisecond granularity is not.
-2. Logging - No event-level logs will be written.
-   1. Event-level logging that normally happens from any shared libraries we might use will be disabled.
-3. Outbound RPCs - These servers will make a small set of outbound RPCs that they initiate.
-   1. They'll do so to each other for load balancing and sharding of data. Requests will only be made to other key/value service that are part of this system and that have the same protections in place. Attestation checks will be chained together.
-   1. There are no outbound RPCs to other systems.
-4. Inbound RPC responses - As in the [API explainer](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md), there are two sets of APIs.
-   1. For the client device to read key/value data. The client will provide its own secure channel and user data is allowed to go back to the browser.
-   2. For adtech server operators to mutate key/value data. These are private APIs that are only available to the server operator. The key/value service will acknowledge success or failure but not send other responses.
+2. For example, counting the approximate number of failed requests in the past n minutes is likely to be fine but doing so at millisecond granularity is not.
+3. Logging - No event-level logs will be written.
+4. Event-level logging that normally happens from any shared libraries we might use will be disabled.
+5. Outbound RPCs - These servers will make a small set of outbound RPCs that they initiate.
+6. They'll do so to each other for load balancing and sharding of data. Requests will only be made to other key/value service that are part of this system and that have the same protections in place. Attestation checks will be chained together.
+7. There are no outbound RPCs to other systems.
+8. Inbound RPC responses - As in the [API explainer](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md), there are two sets of APIs.
+9. For the client device to read key/value data. The client will provide its own secure channel and user data is allowed to go back to the browser.
+10. For adtech server operators to mutate key/value data. These are private APIs that are only available to the server operator. The key/value service will acknowledge success or failure but not send other responses.
 
 ---
 
 1. モニタリング・メトリクス - ノイズされたアグリゲート・メトリクスのみがモニタリングとアラートに利用可能です。これらは少なくとも k 個のサイズに集約される。
-   1. 例えば、過去 n 分間に失敗したリクエストのおおよその数を数えることは問題ないと思われるが、ミリ秒の粒度でそれを行うことは問題である。
-2. ログ記録 - イベントレベルのログは書き込まれません。
-   1. 通常、私たちが使用するかもしれない共有ライブラリから発生するイベントレベルのログは無効になります。
-3. アウトバウンド RPC - これらのサーバーは、彼らが開始するアウトバウンド RPC の小さなセットを作成します。
-   1. データの負荷分散とシャーディングのために、お互いにそうすることになります。リクエストは、このシステムの一部であり、同じ保護が施されている他のキー/バリューサービスに対してのみ行われる。認証のチェックは連鎖的に行われる。
-   1. 他システムへのアウトバウンド RPC はありません。
-4. Inbound RPC responses - [API 解説](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md)にあるように、API には 2 つのセットがあります。
-   1. アドテクサーバー運営者がキー/バリューデータを変異させるためのものです。これらは、サーバー運営者だけが利用できるプライベート API です。key/value サービスは、成功または失敗を認めますが、その他のレスポンスは送信しません。
-   2. クライアントデバイスがキー/バリューデータを読み取るために。クライアントは独自のセキュアなチャネルを提供し、ユーザーデータはブラウザに戻ることができます。
+2. 例えば、過去 n 分間に失敗したリクエストのおおよその数を数えることは問題ないと思われるが、ミリ秒の粒度でそれを行うことは問題である。
+3. ログ記録 - イベントレベルのログは書き込まれません。
+4. 通常、私たちが使用するかもしれない共有ライブラリから発生するイベントレベルのログは無効になります。
+5. アウトバウンド RPC - これらのサーバーは、彼らが開始するアウトバウンド RPC の小さなセットを作成します。
+6. データの負荷分散とシャーディングのために、お互いにそうすることになります。リクエストは、このシステムの一部であり、同じ保護が施されている他のキー/バリューサービスに対してのみ行われる。認証のチェックは連鎖的に行われる。
+7. 他システムへのアウトバウンド RPC はありません。
+8. Inbound RPC responses - [API 解説](https://github.com/WICG/turtledove/blob/main/FLEDGE_Key_Value_Server_API.md)にあるように、API には 2 つのセットがあります。
+9. アドテクサーバー運営者がキー/バリューデータを変異させるためのものです。これらは、サーバー運営者だけが利用できるプライベート API です。key/value サービスは、成功または失敗を認めますが、その他のレスポンスは送信しません。
+10. クライアントデバイスがキー/バリューデータを読み取るために。クライアントは独自のセキュアなチャネルを提供し、ユーザーデータはブラウザに戻ることができます。
 
 ### Trusted execution environment
 
 A trusted execution environment (TEE) is a combination of hardware and software mechanisms that allows for code to execute in isolation, not observable by any other process regardless of the credentials used. The code running in a TEE will be open sourced and audited to ensure proper operation. Only TEE instances running an approved version of the key/value service code will be able to decrypt lookup requests.
 
-信頼された実行環境（TEE）は、使用される認証情報に関係なく、他のプロセスから観察できないように、コードを分離して実行できるハードウェアとソフトウェアの仕組みの組み合わせである。TEE で実行されるコードは、オープンソース化され、適切な動作を保証するために監査されます。キー/バリューサービスコードの承認されたバージョンを実行している TEE インスタンスのみが、ルックアップリクエストを解読することができる。
+信頼された実行環境(TEE)は、使用される認証情報に関係なく、他のプロセスから観察できないように、コードを分離して実行できるハードウェアとソフトウェアの仕組みの組み合わせである。TEE で実行されるコードは、オープンソース化され、適切な動作を保証するために監査されます。キー/バリューサービスコードの承認されたバージョンを実行している TEE インスタンスのみが、ルックアップリクエストを解読することができる。
 
 The code running within a TEE performs the following tasks:
 
@@ -200,7 +200,7 @@ TEE 内で動作するコードは、システム内で唯一、調べる項目�
 
 The server releaser will periodically release binary images of the key/value service code for TEE deployment. A cryptographic hash of the build product (the image to be deployed on the TEE) is obtained as part of the build process. The build is reproducible so that anyone can build binaries from source and verify they are identical to the images released by Google. The way in which the list of authorized images is maintained has not yet been determined, please see the [Aggregation Service explainer](https://github.com/WICG/conversion-measurement-api/blob/main/AGGREGATION_SERVICE_TEE.md) for some ideas.
 
-サーバリリーサーは、キー/バリューサービスコードのバイナリイメージを TEE 展開のために定期的にリリースする。ビルドプロセスの一部として、ビルドプロダクト（TEE にデプロイされるイメージ）の暗号化ハッシュが取得されます。ビルドは再現可能であるため、誰でもソースからバイナリをビルドし、Google が公開するイメージと同一であることを検証することができる。許可されたイメージのリストをどのように管理するかはまだ決まっていません。いくつかのアイデアは[Aggregation Service explainer](https://github.com/WICG/conversion-measurement-api/blob/main/AGGREGATION_SERVICE_TEE.md)を参照してください。
+サーバリリーサーは、キー/バリューサービスコードのバイナリイメージを TEE 展開のために定期的にリリースする。ビルドプロセスの一部として、ビルドプロダクト(TEE にデプロイされるイメージ)の暗号化ハッシュが取得されます。ビルドは再現可能であるため、誰でもソースからバイナリをビルドし、Google が公開するイメージと同一であることを検証することができる。許可されたイメージのリストをどのように管理するかはまだ決まっていません。いくつかのアイデアは[Aggregation Service explainer](https://github.com/WICG/conversion-measurement-api/blob/main/AGGREGATION_SERVICE_TEE.md)を参照してください。
 
 When a new approved version of the key/value service binary is released, it will be added to the list of authorized images. If an image is found in retrospect to contain a critical security or functional flaw, it can be removed from the list. Images older than a certain age will also be periodically retired from the list.
 
@@ -229,7 +229,7 @@ Key/Value サービスの初期導入方針は以下の通りである。
 
 Given ecosystem feedback, we plan to support user-defined functions (UDFs), to be loaded and executed inside the key/value service. This will allow more flexibility in how this server is used and provide a server-side FLEDGE platform for code execution. The loading mechanism has yet to be determined, and will be included in a future update to this explainer.
 
-エコシステムのフィードバックを受けて、私たちはユーザー定義関数（UDF）をサポートする予定です。UDF はキー/バリューサービス内でロードして実行することができます。これにより、このサーバーの使用方法をより柔軟に変更でき、コード実行用のサーバーサイド FLEDGE プラットフォームが提供されます。ロードの仕組みはまだ決定していませんが、この説明書の将来の更新に含まれる予定です。
+エコシステムのフィードバックを受けて、私たちはユーザー定義関数(UDF)をサポートする予定です。UDF はキー/バリューサービス内でロードして実行することができます。これにより、このサーバーの使用方法をより柔軟に変更でき、コード実行用のサーバーサイド FLEDGE プラットフォームが提供されます。ロードの仕組みはまだ決定していませんが、この説明書の将来の更新に含まれる予定です。
 
 By default we will provide a reference UDF that will do a lookup for the key and simply return the value. Replacing this with a custom UDF is not needed if only basic lookup functionality is required. (We expect the performance impact of the reference UDF to be negligible.) The data store that holds the adtech-loaded data will be exposed to the UDF via new read-only APIs.
 
@@ -262,7 +262,7 @@ The following principles are necessary in order to preserve the trust model:
 ---
 
 - サンドボックス - カスタムコードは、それが許可されているものを制限するサンドボックスの内部で実行されます。現在、[Sandbox2](https://developers.google.com/code-sandboxing/sandbox2) 内の [Open Source V8 engine](https://v8.dev/) を検討しています。これは JavaScript と Web Assembly (WASM) の両方をサポートしています。その他の提案も歓迎します。
-- ネットワーク、ディスクアクセス、タイマー、ロギングを行わない - これは上記のサンドボックスを使って強制されます。これは、Key/Value サービスの副作用のない原則を維持し、ユーザーデータの漏えいを避けるためです。粗いタイマーは許可されるかもしれませんが、細かいタイマーは秘密のチャンネル（例：SPECTRE）を防ぐために許可されません。
+- ネットワーク、ディスクアクセス、タイマー、ロギングを行わない - これは上記のサンドボックスを使って強制されます。これは、Key/Value サービスの副作用のない原則を維持し、ユーザーデータの漏えいを避けるためです。粗いタイマーは許可されるかもしれませんが、細かいタイマーは秘密のチャンネル(例:SPECTRE)を防ぐために許可されません。
 - 個別のリクエスト処理 - [FLEDGE 説明書](https://github.com/WICG/turtledove/blob/main/FLEDGE.md#31-fetching-real-time-data-from-a-trusted-server)によると、 key/value サービスに対するリクエストは複数のキーに対するものである可能性がある。UDF は、すべてのキーに対して一度ではなく、個々のキーに対して別々に呼び出される。これにより、各キーは独立して処理され、キーのグループがユーザーのクロスサイトプロファイルとして使用されるのを防ぐことができます。
 - データストア API - Key/Value サービスは、データストアからデータを読み取るための API を UDF に公開する。データストアへの書き込み API は存在しない。
 - 副作用なし - UDF はデータストア API からデータを読み込むことができますが、FLEDGE クライアントにデータを返す以外に、データを任意の場所に書き込むことはできません。UDF の実行間で状態が共有されることはありません。
