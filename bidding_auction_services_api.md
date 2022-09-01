@@ -40,7 +40,7 @@ The following is a high-level overview of the architecture of the Bidding and Au
 
 _In this diagram, one seller and one buyer are represented in the service workflow. In reality, a single seller auction has multiple participating buyers_.
 
-この図では、サービスのワークフローにおいて、1 人の売り手と 1 人の買い手を表現しています。実際には、1 つの売り手オークションに複数の買い手が参加する\_。
+この図では、サービスのワークフローにおいて、1 人の売り手と 1 人の買い手を表現しています。実際には、1 つの売り手オークションに複数の買い手が参加する。
 
 1. The client starts the auction process.
 1. The client sends a `SelectWinningAd` request to the `SellerFrontEnd` service. This request includes the seller's auction configuration and encrypted input for each participating buyer.
@@ -78,17 +78,17 @@ The following are the FLEDGE services that are to be operated by an SSP, also re
 
 The `SellerFrontEnd` service orchestrates calls to other adtechs. For a single seller auction, this service sends requests to DSPs participating in the auction for bidding. This service also fetches real-time seller signals and adtech proprietary code required for the auction.
 
-`SellerFrontEnd`サービスは、他のアドテクノロジーへの呼び出しをオーケストレーションします。シングルセラーのオークションでは、このサービスはオークションに参加している DSP に入札のリクエストを送信します。また、オークションに必要なリアルタイムのセラーシグナルやアドテック独自のコードも取得します。
+`SellerFrontEnd` サービスは、他のアドテクノロジーへの呼び出しをオーケストレーションします。シングルセラーのオークションでは、このサービスはオークションに参加している DSP に入札のリクエストを送信します。また、オークションに必要なリアルタイムのセラーシグナルやアドテック独自のコードも取得します。
 
 _Note: In this model and with the_ [_proposed APIs_][9], _a seller can have auction execution on a cloud platform only when all buyers participating in the auction also operate services for bidding on any supported cloud platform. If required for testing purposes, the client-facing API can be updated to support seller-run auctions in the cloud seamlessly, without depending on a buyer's adoption of services_.
 
-注:このモデルおよび [_提案された API_][9]では、オークションに参加するすべての買い手が、サポートされている任意のクラウドプラットフォーム上で入札のためのサービスを操作する場合にのみ、売り手は、クラウド-プラットフォーム上でオークションを実行することができます。テスト目的で必要であれば、クライアント向け API を更新して、買い手のサービス導入に依存することなく、シームレスにクラウド上で売り手の実行するオークションをサポートすることができる\_。
+注:このモデルおよび [_提案された API_][9]では、オークションに参加するすべての買い手が、サポートされている任意のクラウドプラットフォーム上で入札のためのサービスを操作する場合にのみ、売り手は、クラウド-プラットフォーム上でオークションを実行することができます。テスト目的で必要であれば、クライアント向け API を更新して、買い手のサービス導入に依存することなく、シームレスにクラウド上で売り手の実行するオークションをサポートすることができる。
 
 #### Auction service
 
 The `Auction` service only responds to requests from `SellerFrontEnd` service, with no outbound network access.
 
-オークション」サービスは「SellerFrontEnd」サービスからのリクエストにのみ応答し、ネットワークへのアウトバウンドアクセスは行いません。
+`Auction` サービスは `SellerFrontEnd` サービスからのリクエストにのみ応答し、ネットワークへのアウトバウンドアクセスは行いません。
 
 For every ad auction request, the `Auction` service executes seller owned auction code written in JavaScript or WebAssembly in a sandbox instance within a TEE. Execution of code in the sandbox within a TEE ensures that all input and output (such as logging, file access, and disk access) is disabled, and the service has no network or storage access.
 
@@ -102,7 +102,7 @@ The hosting environment protects the confidentiality of the seller's proprietary
 
 A key/value service is a critical dependency for the auction system. The [FLEDGE key/value service][10] receives requests from the `SellerFrontEnd` service in this architecture (or directly from the client in case bidding and auction runs locally on client's device). The service returns real-time seller data required for auction that corresponds to lookup keys available in buyers' bids (such as `ad_render_urls` or `ad_component_render_urls`).
 
-キー/バリューサービスは、オークションシステムにとって重要な依存関係です。[FLEDGE key/value service][10] は、このアーキテクチャの `SellerFrontEnd` サービスからリクエストを受け取る(または、入札とオークションがクライアントのデバイス上でローカルに実行される場合は、クライアントから直接)。このサービスは、買い手の入札で利用可能なルックアップキー(`ad_render_urls`や`ad_component_render_urls`など)に対応するオークションに必要なリアルタイムの売り手データを返します。
+キー/バリューサービスは、オークションシステムにとって重要な依存関係です。[FLEDGE key/value service][10] は、このアーキテクチャの `SellerFrontEnd` サービスからリクエストを受け取る(または、入札とオークションがクライアントのデバイス上でローカルに実行される場合は、クライアントから直接)。このサービスは、買い手の入札で利用可能なルックアップキー(`ad_render_urls` や `ad_component_render_urls`など)に対応するオークションに必要なリアルタイムの売り手データを返します。
 
 The seller's key/value system may include other services running in a TEE. The details of this system are out of scope of this document.
 
@@ -118,17 +118,17 @@ This section describes FLEDGE services that will be operated by a DSP, also refe
 
 The front-end service of the system that receives requests to generate bids from a `SellerFrontEnd` service. This service fetches real-time bidding signals, buyer signals, and proprietary adtech code that is required for bidding.
 
-`SellerFrontEnd`サービスから入札の生成要求を受けるシステムのフロントエンドサービスです。このサービスは、リアルタイムの入札シグナル、買い手シグナル、および入札に必要な独自のアドテクコードを取得します。
+`SellerFrontEnd` サービスから入札の生成要求を受けるシステムのフロントエンドサービスです。このサービスは、リアルタイムの入札シグナル、買い手シグナル、および入札に必要な独自のアドテクコードを取得します。
 
 _Note: With the proposed APIs, a `BuyerFrontEnd` service can also receive requests directly from the client, such as an Android app or web browser. This is supported during the interim testing phase so that buyers (DSPs) can roll out servers independently without depending on seller (SSP) adoption_.
 
-注:提案された API では、`BuyerFrontEnd`サービスは、Android アプリや Web ブラウザなどのクライアントから直接リクエストを受け取ることもできます。これは、買い手(DSP)が売り手(SSP)の採用に依存せずに独立してサーバーを展開できるように、中間テスト段階でサポートされています\_。
+注:提案された API では、`BuyerFrontEnd` サービスは、Android アプリや Web ブラウザなどのクライアントから直接リクエストを受け取ることもできます。これは、買い手(DSP)が売り手(SSP)の採用に依存せずに独立してサーバーを展開できるように、中間テスト段階でサポートされています。
 
 #### Bidding service
 
 The FLEDGE bidding service can only respond to requests from a `BuyerFrontEnd` service, and otherwise has no outbound network access. For every bidding request, the service executes buyer owned bidding code written in JavaScript and (optional) WebAssembly in a sandbox instance within a TEE. All input and output (such as logging, file access, and disk access) are disabled, and the service has no network or storage access.
 
-FLEDGE の入札サービスは、`BuyerFrontEnd`サービスからのリクエストにのみ応答し、それ以外はアウトバウンドネットワークアクセスを持ちません。入札要求ごとに、サービスは JavaScript と(オプションで)WebAssembly で書かれたバイヤー所有の入札コードを、TEE 内のサンドボックスインスタンスで実行します。すべての入出力(ロギング、ファイルアクセス、ディスクアクセスなど)は無効化され、サービスはネットワークやストレージにアクセスすることができません。
+FLEDGE の入札サービスは、`BuyerFrontEnd` サービスからのリクエストにのみ応答し、それ以外はアウトバウンドネットワークアクセスを持ちません。入札要求ごとに、サービスは JavaScript と(オプションで)WebAssembly で書かれたバイヤー所有の入札コードを、TEE 内のサンドボックスインスタンスで実行します。すべての入出力(ロギング、ファイルアクセス、ディスクアクセスなど)は無効化され、サービスはネットワークやストレージにアクセスすることができません。
 
 This environment protects the confidentiality of a buyer's proprietary code, if the execution happens only in the cloud and proprietary code is fetched in a `BuyerFrontEnd` service.
 
@@ -138,7 +138,7 @@ This environment protects the confidentiality of a buyer's proprietary code, if 
 
 A buyer's key/value service is a critical dependency for the bidding system. The [FLEDGE key/value service][10] receives requests from the `BuyerFrontEnd` service in this architecture (or directly from the client in case bidding and auction runs locally on client's device). The service returns real-time buyer data required for bidding, corresponding to lookup keys (`bidding_signals_keys`).
 
-バイヤーのキー/バリューサービスは、入札システムにとって重要な依存関係です。FLEDGE key/value service][10] は、このアーキテクチャの `BuyerFrontEnd` サービスからリクエストを受け取ります(入札とオークションがクライアントのデバイス上でローカルに実行される場合は、クライアントから直接受け取ります)。このサービスは、入札に必要なリアルタイムのバイヤーデータを、ルックアップキー(`bidding_signals_keys`)に対応させて返します。
+バイヤーのキー/バリューサービスは、入札システムにとって重要な依存関係です。[FLEDGE key/value service][10] は、このアーキテクチャの `BuyerFrontEnd` サービスからリクエストを受け取ります(入札とオークションがクライアントのデバイス上でローカルに実行される場合は、クライアントから直接受け取ります)。このサービスは、入札に必要なリアルタイムのバイヤーデータを、ルックアップキー(`bidding_signals_keys`)に対応させて返します。
 
 The buyer's key/value system may include other services running in a TEE. The details of this system are out of scope of this document.
 
@@ -157,11 +157,11 @@ Through techniques such as prefetching and caching, the following dependencies a
 
 This API proposal for FLEDGE services is based on the gRPC framework. [gRPC][12] is an open source, high performance RPC framework built on top of HTTP2 that is used to build scalable and fast APIs. gRPC uses [protocol buffers][13] as the [interface description language][14] and underlying message interchange format.
 
-この FLEDGE サービスの API 提案は、gRPC フレームワーク をベースにしている。[gRPC][12] は HTTP2 上に構築されたオープンソースの高性能 RPC フレームワークで、スケーラブルで高速な API を構築するために使用されます。gRPC は [インタフェース記述言語][14] とメッセージ交換フォーマットの基本として [プロトコルバッファ][13] を使用しています。
+この FLEDGE サービスの API 提案は、gRPC フレームワークをベースにしている。[gRPC][12] は HTTP2 上に構築されたオープンソースの高性能 RPC フレームワークで、スケーラブルで高速な API を構築するために使用されます。gRPC は [インタフェース記述言語][14] とメッセージ交換フォーマットの基本として [プロトコルバッファ][13] を使用しています。
 
 FLEDGE services expose RPC API endpoints. In this document, the proposed API definitions use [proto3][15].
 
-FLEDGE サービスは、RPC API エンドポイントを公開します。本書では、提案する API 定義に[proto3][15]を使用する。
+FLEDGE サービスは、RPC API エンドポイントを公開します。本書では、提案する API 定義に [proto3][15] を使用する。
 
 All communications between FLEDGE services are RPC and are encrypted. All client-to-server communication is also encrypted. Refer to the [FLEDGE services explainer][6] for more information.
 
@@ -527,17 +527,17 @@ message BuyerInput {
 
 #### GetBid
 
-The `BuyerFrontEnd` service exposes an API endpoint `GetBid`. The `SellerFrontEnd` service sends `GetBidRequest` to the `BuyerFrontEnd` service with encrypted `BuyerInput` and other data. After processing the request, `BuyerFrontEnd` returns `GetBidResponse`, which includes a bid and other data corresponding to the top eligible ad candidate. Refer to \`][22] for more information.
+The `BuyerFrontEnd` service exposes an API endpoint `GetBid`. The `SellerFrontEnd` service sends `GetBidRequest` to the `BuyerFrontEnd` service with encrypted `BuyerInput` and other data. After processing the request, `BuyerFrontEnd` returns `GetBidResponse`, which includes a bid and other data corresponding to the top eligible ad candidate. Refer to [`AdWithBid`][22] for more information.
 
-`BuyerFrontEnd`サービスは API エンドポイント`GetBid` を公開しています。`SellerFrontEnd` サービスは `GetBidRequest` を `BuyerFrontEnd` サービスに送信し、暗号化された `BuyerInput` とその他のデータを送信する。`BuyerFrontEnd` はリクエストを処理した後、`GetBidResponse`を返します。このレスポンスには、上位の広告候補に対応する入札額とその他のデータが含まれます。詳細は \`][22] を参照してください。
+`BuyerFrontEnd` サービスは API エンドポイント `GetBid` を公開しています。`SellerFrontEnd` サービスは `GetBidRequest` を `BuyerFrontEnd` サービスに送信し、暗号化された `BuyerInput` とその他のデータを送信する。`BuyerFrontEnd` はリクエストを処理した後、 `GetBidResponse` を返します。このレスポンスには、上位の広告候補に対応する入札額とその他のデータが含まれます。詳細は [`AdWithBid`][22] を参照してください。
 
 The communication between the `BuyerFrontEnd` service and the `SellerFrontEnd` service is between each service's TEE and is end-to-end encrypted.
 
-`BuyerFrontEnd`サービスと`SellerFrontEnd` サービス間の通信は、各サービスの TEE 間で行われ、エンドツーエンドで暗号化されています。
+`BuyerFrontEnd` サービスと `SellerFrontEnd` サービス間の通信は、各サービスの TEE 間で行われ、エンドツーエンドで暗号化されています。
 
 _Note: Temporarily, as adtechs test these systems, clients can call `BuyerFrontEnd` services directly using the API below_.
 
-注:一時的に、アドテクがこれらのシステムをテストしている間、クライアントは以下の API を使用して `BuyerFrontEnd` サービスを直接呼び出すことができます\_。
+注:一時的に、アドテクがこれらのシステムをテストしている間、クライアントは以下の API を使用して `BuyerFrontEnd` サービスを直接呼び出すことができます。
 
 ```
 syntax = "proto3";
@@ -613,9 +613,9 @@ message GetBidResponse {
 
 ##### AdWithBid
 
-The bid for an ad candidate, includes `ad_render_url, ad_metadata, custom_audience_name` and corresponding `bid_price`. This is returned in \`][23].
+The bid for an ad candidate, includes `ad_render_url, ad_metadata, custom_audience_name` and corresponding `bid_price`. This is returned in [`GetBidResponse`][23].
 
-広告候補の入札には、`ad_render_url, ad_metadata, custom_audience_name` とそれに対応する `bid_price` が含まれます。これは、\`][23]で返されます。
+広告候補の入札には、`ad_render_url, ad_metadata, custom_audience_name` とそれに対応する `bid_price` が含まれます。これは、 [`GetBidResponse`][23] で返されます。
 
 ```
 syntax = "proto3";
@@ -650,7 +650,7 @@ The `Bidding` service exposes an API endpoint `GenerateBids`. The `BuyerFrontEnd
 
 The communication between the `BuyerFrontEnd` service and `Bidding` service occurs between each service's TEE and request-response is end-to-end encrypted.
 
-`BuyerFrontEnd`サービスと`Bidding`サービス間の通信は、各サービスの TEE 間で行われ、リクエストとレスポンスはエンドツーエンドで暗号化されています。
+`BuyerFrontEnd` サービスと `Bidding` サービス間の通信は、各サービスの TEE 間で行われ、リクエストとレスポンスはエンドツーエンドで暗号化されています。
 
 ```
 syntax = "proto3";
@@ -820,11 +820,11 @@ message GenerateBidsResponse {
 
 The `Auction` service exposes an API endpoint `ScoreAds`. The `SellerFrontEnd` service sends a `ScoreAdsRequest` to the `Auction` service with the Seller's proprietary auction code and inputs required by the code. The inputs include bids from each buyer and other required signals. After processing the request, the `Auction` service returns the `ScoreAdsResponse` that includes scores corresponding to each ad.
 
-`Auction`サービスは API エンドポイント`ScoreAds` を公開しています。`SellerFrontEnd` サービスは `ScoreAdsRequest` を `Auction` サービスに送信し、売り手独自のオークションコードとそのコードに必要な入力を送信します。入力には、各バイヤーの入札やその他の必要な信号が含まれます。リクエストを処理した後、`Auction` サービスは各広告に対応するスコアを含む `ScoreAdsResponse` を返します。
+`Auction` サービスは API エンドポイント `ScoreAds` を公開しています。`SellerFrontEnd` サービスは `ScoreAdsRequest` を `Auction` サービスに送信し、売り手独自のオークションコードとそのコードに必要な入力を送信します。入力には、各バイヤーの入札やその他の必要な信号が含まれます。リクエストを処理した後、`Auction` サービスは各広告に対応するスコアを含む `ScoreAdsResponse` を返します。
 
 The communication between the `SellerFrontEnd` service and `Auction` service occurs within each service's TEE and request-response is end-to-end encrypted.
 
-`SellerFrontEnd`サービスと`Auction` サービス間の通信は、各サービスの TEE 内で行われ、リクエストとレスポンスはエンドツーエンドで暗号化されています。
+`SellerFrontEnd` サービスと `````Auction` サービス間の通信は、各サービスの TEE 内で行われ、リクエストとレスポンスはエンドツーエンドで暗号化されています。
 
 ```
 syntax = "proto3";
